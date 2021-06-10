@@ -6,17 +6,17 @@ const TopNav = () => {
   const { Item } = Menu;
   return (
     <Menu mode='horizontal'>
-      <Item icon={<AppstoreOutlined />}>
+      <Item key='app' icon={<AppstoreOutlined />}>
         <Link href='/'>
           <a>App</a>
         </Link>
       </Item>
       <Item icon={<LoginOutlined />}>
-        <Link href='/login'>
+        <Link key='login' href='/login'>
           <a>Login</a>
         </Link>
       </Item>
-      <Item icon={<UserAddOutlined />}>
+      <Item key='register' icon={<UserAddOutlined />}>
         <Link href='/register'>
           <a>Register</a>
         </Link>
