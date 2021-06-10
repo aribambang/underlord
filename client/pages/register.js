@@ -1,23 +1,32 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
+import { SyncOutlined } from '@ant-design/icons';
+import Link from 'next/link';
 
 const register = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const { data } = await axios.post(`http://localhost:8000/api/register`, {
+      setLoading(true);
+      console.log(process.env.NEXT_PUBLIC_API);
+      const { data } = await axios.post(`/api/register`, {
         name,
         email,
         password,
       });
-      console.log(data);
+
+      toast.success('Registration successful, please login.');
+      setLoading(false);
     } catch (err) {
-      console.log(err);
+      toast.error(err.response.data.message);
+      setLoading(false);
     }
   };
 
@@ -40,6 +49,7 @@ const register = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder='Enter Email'
+            autoComplete='email'
             required
           />
           <input
@@ -48,14 +58,26 @@ const register = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder='Enter Password'
+            autoComplete='new-password'
             required
           />
-          <div class='d-grid gap-2'>
-            <button type='submit' className='btn btn-block btn-primary'>
-              Submit
+          <div className='d-grid gap-2'>
+            <button
+              disabled={!name || !email || !password || loading}
+              type='submit'
+              className='btn btn-block btn-primary'
+            >
+              {loading ? <SyncOutlined spin /> : 'Register'}
             </button>
           </div>
         </form>
+
+        <p className='text-center p-3'>
+          Already registered?{' '}
+          <Link href='/login'>
+            <a>Login</a>
+          </Link>
+        </p>
       </div>
     </>
   );
