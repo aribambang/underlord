@@ -1,5 +1,6 @@
 const User = require('../models/user');
 const { hashPassword, comparePassword } = require('../utils/auth');
+const jwt = require('jsonwebtoken');
 
 export const register = async (req, res) => {
   try {
@@ -24,6 +25,30 @@ export const register = async (req, res) => {
     await user.save();
 
     return res.status(200).json({ message: 'Successfully, user has been registered' });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: err });
+  }
+};
+
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email }).exec();
+    if (!user) return res.status(400).json({ message: 'User not found' });
+
+    const passwordMatch = await comparePassword(password, user.password);
+    if (!passwordMatch) return res.status(400).json({ message: 'Password not match' });
+
+    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+
+    user.password = undefined;
+    console.log('masuk');
+
+    res.cookie('token', token, { httpOnly: true });
+
+    return res.status(200).json(user);
   } catch (err) {
     console.log(err);
     return res.status(500).json({ message: err });
