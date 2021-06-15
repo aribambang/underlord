@@ -1,27 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
 import { toast } from 'react-toastify';
 import { SyncOutlined } from '@ant-design/icons';
+import { Context } from '../context';
+import { useRouter } from 'next/router';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const { state, dispatch } = useContext(Context);
+  const { user } = state;
+
+  const router = useRouter();
+
+  useEffect(() => {
+    if (user) router.push('/');
+  }, [user]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       setLoading(true);
-      console.log(process.env.NEXT_PUBLIC_API);
       const { data } = await axios.post(`/api/login`, {
         email,
         password,
       });
-      console.log(data);
+
+      dispatch({
+        type: 'LOGIN',
+        payload: data,
+      });
+
+      window.localStorage.setItem('user', JSON.stringify(data));
+
       setLoading(false);
+
+      router.push('/');
     } catch (err) {
+      console.log(err);
       toast.error(err.response.data.message);
       setLoading(false);
     }
