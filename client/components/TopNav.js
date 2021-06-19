@@ -8,6 +8,8 @@ import {
   LogoutOutlined,
   UserOutlined,
   DashboardOutlined,
+  CarryOutOutlined,
+  TeamOutlined,
 } from '@ant-design/icons';
 import { useRouter } from 'next/router';
 import { Context } from '../context';
@@ -40,6 +42,29 @@ const TopNav = () => {
           <a>App</a>
         </Link>
       </Item>
+
+      {user && user.role && user.role.includes('Instructor') ? (
+        <Item
+          key='/instructor/course/create'
+          onClick={(e) => setCurrent(e.key)}
+          icon={<CarryOutOutlined />}
+        >
+          <Link href='/instructor/course/create'>
+            <a>Create Course</a>
+          </Link>
+        </Item>
+      ) : (
+        <Item
+          key='/user/become-instructor'
+          onClick={(e) => setCurrent(e.key)}
+          icon={<TeamOutlined />}
+        >
+          <Link href='/user/become-instructor'>
+            <a>Become Instructor</a>
+          </Link>
+        </Item>
+      )}
+
       {!user ? (
         <>
           <Item key='/login' onClick={(e) => setCurrent(e.key)} icon={<LoginOutlined />}>

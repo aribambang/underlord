@@ -39,7 +39,7 @@ const Login = () => {
 
       setLoading(false);
 
-      router.push('/');
+      router.push('/user');
     } catch (err) {
       console.log(err);
       toast.error(err.response.data.message);
