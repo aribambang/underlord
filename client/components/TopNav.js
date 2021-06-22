@@ -36,7 +36,7 @@ const TopNav = () => {
   };
 
   return (
-    <Menu mode='horizontal' selectedKeys={[current]}>
+    <Menu mode='horizontal' selectedKeys={[current]} className='mb-2'>
       <Item key='/' onClick={(e) => setCurrent(e.key)} icon={<AppstoreOutlined />}>
         <Link href='/'>
           <a>App</a>
@@ -79,18 +79,32 @@ const TopNav = () => {
           </Item>
         </>
       ) : (
-        <SubMenu key='account' title={user.name} className='ms-auto' icon={<UserOutlined />}>
-          <ItemGroup>
-            <Item key='/user' icon={<DashboardOutlined />}>
-              <Link href='/user'>
-                <a>Dashboard</a>
+        <>
+          {user && user.role && user.role.includes('Instructor') && (
+            <Item
+              key='/instructor'
+              onClick={(e) => setCurrent(e.key)}
+              className='ms-auto'
+              icon={<TeamOutlined />}
+            >
+              <Link href='/instructor'>
+                <a>Instructor</a>
               </Link>
             </Item>
-            <Item key='/logout' onClick={logout} icon={<LogoutOutlined />}>
-              Logout
-            </Item>
-          </ItemGroup>
-        </SubMenu>
+          )}
+          <SubMenu key='account' title={user.name} icon={<UserOutlined />}>
+            <ItemGroup>
+              <Item key='/user' icon={<DashboardOutlined />}>
+                <Link href='/user'>
+                  <a>Dashboard</a>
+                </Link>
+              </Item>
+              <Item key='/logout' onClick={logout} icon={<LogoutOutlined />}>
+                Logout
+              </Item>
+            </ItemGroup>
+          </SubMenu>
+        </>
       )}
     </Menu>
   );
