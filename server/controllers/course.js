@@ -158,3 +158,25 @@ export const addLesson = async (req, res) => {
     return res.status(500).json(err);
   }
 };
+
+export const update = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const course = await Course.findOne({ slug }).exec();
+    if (req.user._id !== course.instructor.toString()) {
+      return res.status(400).json({ message: 'Unauthorized' });
+    }
+
+    if (course.image && req.body.image && course.image.Key !== req.body.image.Key) {
+      S3.deleteObject({ Bucket: course.image.Bucket, Key: course.image.Key }, (err, data) => {
+        if (err) return res.sendStatus(400);
+      });
+    }
+    const updated = await Course.findOneAndUpdate({ slug }, req.body, { new: true }).exec();
+
+    return res.json(updated);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+};

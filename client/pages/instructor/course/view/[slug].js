@@ -106,9 +106,9 @@ const CourseView = () => {
         {course && (
           <div className='container-fluid pt-1'>
             <div className='d-flex pt-2'>
-              <Image width={80} src={course.image ? course.image.Location : '/course.png'} />
               <div className='flex-grow-1 ms-3'>
                 <div className='row'>
+                  <Image width={80} src={course.image ? course.image.Location : '/course.png'} />
                   <div className='col'>
                     <h5 className='mt-2 text-primary'>{course.name}</h5>
                     <p style={{ marginTop: '-10px' }}>
@@ -118,13 +118,17 @@ const CourseView = () => {
                   </div>
                   <div className='col-md-1 d-flex justify-content-end pt-4'>
                     <Tooltip title='Edit'>
-                      <EditOutlined className='h5 text-warning me-4' />
+                      <EditOutlined
+                        onClick={() => router.push(`/instructor/course/edit/${slug}`)}
+                        className='h5 text-warning me-4'
+                      />
                     </Tooltip>
                     <Tooltip title='Publish'>
                       <CheckOutlined className='h5 pointer text-danger' />
                     </Tooltip>
                   </div>
                 </div>
+                <hr />
                 <div className='row'>
                   <div className='col'>
                     <ReactMarkdown children={course.description} />
