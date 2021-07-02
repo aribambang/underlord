@@ -19,8 +19,8 @@ const InstructorIndex = () => {
     <InstructorRoute>
       <h1 className='jumbotron text-center square'>Instructor Dashboard</h1>
       {courses &&
-        courses.map((course) => (
-          <>
+        courses.map((course, index) => (
+          <div key={index}>
             <div className='d-flex'>
               <div className='flex-shrink-0'>
                 <Avatar size={70} src={course.image ? course.image.Location : '/course.png'} />
@@ -37,7 +37,7 @@ const InstructorIndex = () => {
 
                     {course.lessons.length < 5 ? (
                       <p style={{ marginTop: '-15px', fontSize: '10px' }} className='text-warning'>
-                        At least 5 lesssons are required to publish a course
+                        At least 5 lessons are required to publish a course
                       </p>
                     ) : course.published ? (
                       <p style={{ marginTop: '-15px', fontSize: '10px' }} className='text-success'>
@@ -63,7 +63,7 @@ const InstructorIndex = () => {
                 </div>
               </div>
             </div>
-          </>
+          </div>
         ))}
     </InstructorRoute>
   );

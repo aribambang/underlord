@@ -85,7 +85,6 @@ export const detail = async (req, res) => {
     const course = await Course.findOne({ slug: req.params.slug })
       .populate('instructor', '_id name')
       .exec();
-    console.log(course);
     return res.json(course);
   } catch (err) {
     console.log(err);
@@ -175,6 +174,70 @@ export const update = async (req, res) => {
     const updated = await Course.findOneAndUpdate({ slug }, req.body, { new: true }).exec();
 
     return res.json(updated);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+};
+
+export const removeLesson = async (req, res) => {
+  try {
+    const { slug, lessonId } = req.params;
+    const course = await Course.findOne({ slug }).exec();
+
+    if (req.user._id !== course.instructor.toString()) {
+      return res.status(400).json({ message: 'Unauthorized' });
+    }
+    console.log('masuk');
+    const deleted = await Course.findOneAndUpdate(
+      { _id: course._id },
+      {
+        $pull: { lessons: { _id: lessonId } },
+      },
+    ).exec();
+
+    console.log('masuk2');
+    const lesson = course.lessons.find((v) => v._id.toString() === lessonId);
+
+    console.log('masuk3');
+    if (lesson.video) {
+      S3.deleteObject({ Bucket: lesson.video.Bucket, Key: lesson.video.Key }, (err, data) => {
+        if (err) return res.sendStatus(400);
+      });
+    }
+
+    console.log('masuk4');
+    return res.json({ ok: true });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+};
+
+export const updateLesson = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const { _id, title, content, video, free_preview } = req.body;
+    const course = await Course.findOne({ slug }).select('instructor').exec();
+
+    if (course.instructor._id.toString() !== req.user._id) {
+      return res.status(400).json({ message: 'Unauthorized' });
+    }
+
+    const updated = await Course.updateOne(
+      { 'lessons._id': _id },
+      {
+        $set: {
+          'lessons.$.title': title,
+          'lessons.$.content': content,
+          'lessons.$.video': video,
+          'lessons.$.free_preview': free_preview,
+        },
+      },
+      { new: true },
+    ).exec();
+
+    res.json({ ok: true });
   } catch (err) {
     console.log(err);
     return res.status(500).json(err);
