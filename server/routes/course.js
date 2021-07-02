@@ -17,8 +17,10 @@ const {
   updateLesson,
   publishCourse,
   unpublishCourse,
+  courses,
 } = require('../controllers/course');
 
+router.get('/courses', courses);
 router.post('/course/upload-image', requireSignIn, uploadImage);
 router.post('/course/remove-image', requireSignIn, removeImage);
 router.post('/course', requireSignIn, isInstructor, create);

@@ -285,3 +285,11 @@ export const unpublishCourse = async (req, res) => {
     return res.status(500).json(err);
   }
 };
+
+export const courses = async (req, res) => {
+  const all = await Course.find({ published: true })
+    .select('-lessons')
+    .populate('instructor', '_id name')
+    .exec();
+  return res.json(all);
+};
