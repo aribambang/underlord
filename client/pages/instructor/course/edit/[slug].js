@@ -26,11 +26,11 @@ const CourseEdit = () => {
 
   useEffect(() => {
     const loadCourse = async () => {
-      const { data } = await axios.get(`/api/course/${slug}`);
+      const { data } = await axios.get(`/api/course/instructor/${slug}`);
       if (data) setValues(data);
       if (data && data.image) setImage(data.image);
     };
-    loadCourse();
+    if (slug) loadCourse();
   }, [slug]);
 
   const [image, setImage] = useState('');

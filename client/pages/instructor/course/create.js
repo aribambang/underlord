@@ -72,7 +72,7 @@ const CourseCreate = () => {
       toast('Successfully, now you can start adding lesson.');
       router.push('/instructor');
     } catch (err) {
-      toast(err.response.data);
+      toast(err.response.data.message);
     }
   };
 

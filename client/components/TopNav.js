@@ -67,7 +67,12 @@ const TopNav = () => {
 
       {!user ? (
         <>
-          <Item key='/login' onClick={(e) => setCurrent(e.key)} icon={<LoginOutlined />}>
+          <Item
+            key='/login'
+            className='ms-auto'
+            onClick={(e) => setCurrent(e.key)}
+            icon={<LoginOutlined />}
+          >
             <Link href='/login'>
               <a>Login</a>
             </Link>
@@ -92,7 +97,12 @@ const TopNav = () => {
               </Link>
             </Item>
           )}
-          <SubMenu key='account' title={user.name} icon={<UserOutlined />}>
+          <SubMenu
+            key='account'
+            className={`${user && user.role && user.role.includes('Instructor') ? '' : 'ms-auto'}`}
+            title={user.name}
+            icon={<UserOutlined />}
+          >
             <ItemGroup>
               <Item key='/user' icon={<DashboardOutlined />}>
                 <Link href='/user'>

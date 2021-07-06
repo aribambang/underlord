@@ -1,6 +1,7 @@
 const AWS = require('aws-sdk');
 const { nanoid } = require('nanoid');
 const Course = require('../models/course');
+const User = require('../models/course');
 const slugify = require('slugify');
 const { readFileSync } = require('fs');
 
@@ -80,11 +81,15 @@ export const create = async (req, res) => {
   }
 };
 
-export const detail = async (req, res) => {
+export const detailPrivate = async (req, res) => {
   try {
     const course = await Course.findOne({ slug: req.params.slug })
       .populate('instructor', '_id name')
       .exec();
+    console.log(req.user._id, course.instructor._id.toString());
+    if (req.user._id !== course.instructor._id.toString()) {
+      return res.status(400).json({ message: 'Unauthorized' });
+    }
     return res.json(course);
   } catch (err) {
     console.log(err);
@@ -292,4 +297,61 @@ export const courses = async (req, res) => {
     .populate('instructor', '_id name')
     .exec();
   return res.json(all);
+};
+
+export const detail = async (req, res) => {
+  try {
+    let course = await Course.findOne({ slug: req.params.slug })
+      .populate('instructor', '_id name')
+      .exec();
+
+    if (course.lessons && course.lessons.length > 0) {
+      course.lessons.forEach((e) => {
+        if (!e.free_preview) {
+          e.video = undefined;
+        }
+      });
+    }
+
+    return res.json(course);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+};
+
+export const checkEnrollment = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+
+    const user = User.findById(req.user._id).exec();
+    let ids = [];
+    const length = user.courses && user.courses.length;
+    for (let i = 0; i < length; i++) {
+      ids.push(user.courses[i].toString());
+    }
+    const status = ids.includes(courseId);
+    return res.json({ status });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+};
+
+export const freeEnrollment = async (req, res) => {
+  try {
+    const course = await Course.findById(req.params.courseId).exec();
+    if (course.paid) return;
+
+    const result = await User.findByIdAndUpdate(
+      req.user._id,
+      { $addToSet: { courses: course._id } },
+      { new: true },
+    ).exec();
+
+    return res.json({ message: 'Congratulations! You have successfully enrolled' });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
 };

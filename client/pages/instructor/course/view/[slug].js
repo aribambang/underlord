@@ -32,11 +32,11 @@ const CourseView = () => {
 
   useEffect(() => {
     const loadCourse = async () => {
-      const { data } = await axios.get(`/api/course/${slug}`);
+      const { data } = await axios.get(`/api/course/instructor/${slug}`);
       console.log(data);
       setCourse(data);
     };
-    loadCourse();
+    if (slug) loadCourse();
   }, [slug]);
 
   const handleAddLesson = async (e) => {
