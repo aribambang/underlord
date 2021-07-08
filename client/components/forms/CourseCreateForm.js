@@ -15,8 +15,8 @@ const CourseCreateForm = ({
   const { Option } = Select;
   const children = [];
 
-  for (let i = 9.99; i <= 100.99; i++) {
-    children.push(<Option key={i.toFixed(2)}>${i.toFixed(2)}</Option>);
+  for (let i = 1; i <= 40; i++) {
+    children.push(<Option key={(i * 25000).toFixed(2)}>Rp{(i * 25000).toFixed(2)}</Option>);
   }
 
   return (
@@ -63,7 +63,7 @@ const CourseCreateForm = ({
               <div className='col'>
                 <div className='form-group'>
                   <Select
-                    defaultValue='$9.99'
+                    defaultValue='Rp25000.00'
                     style={{ width: '100%' }}
                     size='large'
                     tokenSeparators={[,]}

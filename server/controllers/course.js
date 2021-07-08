@@ -1,9 +1,10 @@
 const AWS = require('aws-sdk');
 const { nanoid } = require('nanoid');
 const Course = require('../models/course');
-const User = require('../models/course');
+const User = require('../models/user');
 const slugify = require('slugify');
 const { readFileSync } = require('fs');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const awsConfig = {
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -350,6 +351,66 @@ export const freeEnrollment = async (req, res) => {
     ).exec();
 
     return res.json({ message: 'Congratulations! You have successfully enrolled' });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+};
+
+export const paidEnrollment = async (req, res) => {
+  try {
+    const course = await Course.findById(req.params.courseId).populate('instructor').exec();
+    if (!course.paid) return;
+
+    const fee = (course.price * 30) / 100;
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          name: course.name,
+          amount: Math.round(course.price.toFixed(2) * 100),
+          currency: 'idr',
+          quantity: 1,
+        },
+      ],
+      payment_intent_data: {
+        application_fee_amount: Math.round(fee.toFixed(2) * 100),
+        transfer_data: {
+          destination: course.instructor.stripe_account_id,
+        },
+      },
+      success_url: `${process.env.STRIPE_SUCCESS_URL}/${course._id}`,
+      cancel_url: process.env.STRIPE_CANCEL_URL,
+    });
+
+    await User.findByIdAndUpdate(req.user._id, { stripeSession: session }).exec();
+
+    res.json(session.id);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+};
+
+export const stripeSuccess = async (req, res) => {
+  try {
+    const course = await Course.findById(req.params.courseId).exec();
+
+    const user = await User.findById(req.user._id).exec();
+    if (!user.stripeSession.id) return res.sendStatus(400);
+
+    const session = await stripe.checkout.sessions.retrieve(user.stripeSession.id);
+    console.log(session);
+
+    if (session.payment_status === 'paid') {
+      await User.findByIdAndUpdate(user._id, {
+        $addToSet: { courses: course._id },
+        $set: { stripeSession: {} },
+      }).exec();
+
+      return res.json({ success: true, course });
+    }
   } catch (err) {
     console.log(err);
     return res.status(500).json(err);

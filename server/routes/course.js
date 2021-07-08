@@ -21,6 +21,8 @@ const {
   courses,
   checkEnrollment,
   freeEnrollment,
+  paidEnrollment,
+  stripeSuccess,
 } = require('../controllers/course');
 
 router.get('/courses', courses);
@@ -39,5 +41,7 @@ router.put('/course/unpublish/:courseId', requireSignIn, unpublishCourse);
 router.put('/course/:slug/:lessonId', requireSignIn, removeLesson);
 router.get('/check-enrollment/:courseId', requireSignIn, checkEnrollment);
 router.post('/free-enrollment/:courseId', requireSignIn, freeEnrollment);
+router.post('/paid-enrollment/:courseId', requireSignIn, paidEnrollment);
+router.get('/stripe-success/:courseId', requireSignIn, stripeSuccess);
 
 module.exports = router;

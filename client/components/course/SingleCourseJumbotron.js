@@ -23,8 +23,10 @@ const SingleCourseJumbotron = ({
   const playerRef = useRef(null);
 
   useEffect(() => {
-    playerRef.current.showPreview();
-  }, [showModal]);
+    if (lessons[0].video && lessons[0].video.Location && lessons[0].free_preview) {
+      playerRef.current.showPreview();
+    }
+  }, [showModal, lessons]);
 
   return (
     <div className='jumbotron bg-primary square'>
